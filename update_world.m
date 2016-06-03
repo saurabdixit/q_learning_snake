@@ -13,34 +13,28 @@ function [world,snake_location] = update_world(world,snake_location,fruit_locati
             else
                 snake_element_r = grid_height;
             end
-
         elseif action == 2
             if snake_element_r + 1 <= grid_height
                 snake_element_r = snake_element_r + 1;
             else
                 snake_element_r = 1;
             end
-
         elseif action == 3
             if snake_element_c - 1 > 0
                 snake_element_c = snake_element_c -1;
             else
                 snake_element_c = grid_width;
             end
-
         else
             if snake_element_c + 1 <= grid_width
                 snake_element_c = snake_element_c + 1;
             else
                 snake_element_c = 1;
             end
-            
         end
 
         snake_location(i,1) = snake_element_r;
         snake_location(i,2) = snake_element_c;
-
-
         world(snake_element_r, snake_element_c) = world(snake_element_r,snake_element_c) + 1;
     end
     world(fruit_location(1),fruit_location(2)) = world(fruit_location(1),fruit_location(2)) + 0.5;

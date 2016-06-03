@@ -5,18 +5,11 @@ function [Global_Q_matrix,Q_matrix_fruit] = update_global_q_fruit(Q_matrix_fruit
     [r_lesser,~] = find(Q_matrix_fruit(:,1) < 1);
     [c_greater,~] = find(Q_matrix_fruit(:,2) > grid_size);
     [c_lesser,~] = find(Q_matrix_fruit(:,2) < 1);
-    for i=1:size(r_greater,1)
-        Q_matrix_fruit(r_greater(i),1) = Q_matrix_fruit(r_greater(i),1) - grid_size;
-    end
-    for j=1:size(r_lesser,1)
-        Q_matrix_fruit(r_lesser(j),1) = grid_size  - abs(Q_matrix_fruit(r_lesser(j),1));
-    end
-    for m=1:size(c_greater,1)
-        Q_matrix_fruit(c_greater(m),2) = Q_matrix_fruit(c_greater(m),2) - grid_size;
-    end
-    for n=1:size(c_lesser,1)
-        Q_matrix_fruit(c_lesser(n),2) = grid_size  - abs(Q_matrix_fruit(c_lesser(n),2));
-    end
+
+    Q_matrix_fruit(r_greater',1) = Q_matrix_fruit(r_greater',1) - grid_size;
+    Q_matrix_fruit(r_lesser',1) = grid_size  - abs(Q_matrix_fruit(r_lesser',1));
+    Q_matrix_fruit(c_greater',2) = Q_matrix_fruit(c_greater',2) - grid_size;
+    Q_matrix_fruit(c_lesser',2) = grid_size  - abs(Q_matrix_fruit(c_lesser',2));
     
     for l=1:size(Q_matrix_fruit,1)
         ind = sub2ind([grid_size,grid_size],Q_matrix_fruit(l,1),Q_matrix_fruit(l,2));
