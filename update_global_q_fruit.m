@@ -14,7 +14,7 @@ function [Global_Q_matrix,Q_matrix_fruit] = update_global_q_fruit(Q_matrix_fruit
     for l=1:size(Q_matrix_fruit,1)
         ind = sub2ind([grid_size,grid_size],Q_matrix_fruit(l,1),Q_matrix_fruit(l,2));
         Q_matrix_fruit(l,3) = ind;
-        Global_Q_matrix(ind,:) = Global_Q_matrix(ind,:) + Q_matrix_fruit(l,4:end);
+        Global_Q_matrix(ind,:) = Q_matrix_fruit(l,4:end);
     end
 
     [Q_matrix_fruit(:,1), Q_matrix_fruit(:,2)] = ind2sub([grid_size,grid_size],1:(grid_size*grid_size));
