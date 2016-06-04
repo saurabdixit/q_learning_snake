@@ -9,8 +9,8 @@ sleep = 0.05;
 reward_for_fruit = 100;
 learning_rate = 0.1;
 discount_factor = 0.9;
-reward_for_moving = -3;
-explore_exploit_threshold = 0.3
+reward_for_moving = -10;
+explore_exploit_threshold = 1
 
 %% code starts here
 world = zeros(grid_size,grid_size);
@@ -73,7 +73,6 @@ while 1
     visualize_world(world,fruit_r,fruit_c,sleep,inf);
     if sum(sum(world==1.5)) == 1
         fruit_eaten = 1;
-        world(fruit_r,fruit_c) = 1;
         Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_fruit - Q_matrix_fruit(ind_in_fruit_previous,3+action));
 
         snake_location = append_snake(snake_location,previous_snake_element_location);
@@ -84,12 +83,14 @@ while 1
     if ~fruit_eaten
         %disp('Executing not fruit eaten')
         Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_moving + discount_factor * max(Q_matrix_fruit(ind_in_fruit_current,4:end)) - Q_matrix_fruit(ind_in_fruit_previous,3+action));
-        Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
     end
-
-    Q_matrix_fruit
+    Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
+    ind_current
+    Global_Q_matrix
+    pause
     if sum(sum(world==2)) == 1
         world = zeros(grid_size,grid_size);
+        idx = find(snake_location(1,1) == snake_location(2:end,1) & snake_location(1,2) == snake_location(2:end,2));
         snake_location = [(grid_size-3)+[1:snake_length]',ones(snake_length,1),ones(snake_length,1)];
         for j=1:size(snake_location,1)
             world(snake_location(j,1),snake_location(j,2)) = 1;
