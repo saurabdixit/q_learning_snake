@@ -1,23 +1,20 @@
-function visualize_world(virtual_world,r,c,sleep,trial)
-    bw = double(virtual_world < 0.5);
-    bw(r,c) = 0.5;
-    imshow(bw, 'InitialMagnification', 'fit');
+function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
+    colored_image(:,:,1) = double(virtual_world < 0.5);
+    colored_image(:,:,2) = double(virtual_world < 0.5);
+    colored_image(:,:,3) = double(virtual_world < 0.5);
+    colored_image(r,c,2) = 0.5;
+    colored_image(snake_location(1,1),snake_location(1,2),1) = 0.6;
+    colored_image(snake_location(end,1),snake_location(end,2),1) = 1;
+    colored_image(snake_location(end,1),snake_location(end,2),2) = 1;
+    imshow(colored_image, 'InitialMagnification', 'fit');
+    handler = findobj(gcf,'type','image');
     handler = findobj(gcf,'type','image');
     x_data = get(handler,'XData');
     y_data = get(handler,'YData');
     m = size(get(handler,'CData'),1);
     n = size(get(handler,'CData'),2);
-    [m,n] = size(get(handler,'CData'));
-    if m>1
-        pix_h = diff(y_data)/(m-1);
-    else
-        pix_h = 1;
-    end
-    if n>1
-        pix_w = diff(x_data)/(n-1);
-    else
-        pix_w = 1;
-    end
+    pix_h = 1;
+    pix_w = 1;
     y_top = y_data(1) - (pix_h/2);
     y_bottom = y_data(2) + (pix_h/2);
     y = linspace(y_top, y_bottom, m+1);
@@ -44,7 +41,6 @@ function visualize_world(virtual_world,r,c,sleep,trial)
     x_h = x_h(:);
     y_h = y_h(:);
     
-    %handler = imshow(bw, 'InitialMagnification', 'fit');
     ax = ancestor(handler, 'axes');
     line('Parent', ax, 'XData', x_h, 'YData', y_h, ...
         'Color', 'b', 'LineWidth', 1, 'Clipping', 'off');
