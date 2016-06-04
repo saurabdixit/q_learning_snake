@@ -28,7 +28,13 @@ Global_Q_matrix = zeros(grid_size * grid_size, 4);
 Q_matrix_fruit(:,1) = Q_matrix_fruit(:,1) - ceil(grid_size/2);
 Q_matrix_fruit(:,2) = Q_matrix_fruit(:,2) - ceil(grid_size/2);
 Q_matrix_fruit(:,3) = 1:(grid_size*grid_size);
-[Global_Q_matrix,Q_matrix_fruit] = update_global_q_fruit(Q_matrix_fruit, Global_Q_matrix, grid_size, fruit_r, fruit_c);
+[Q_matrix_fruit] = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
+
+Q_matrix_snake = zeros(grid_size * grid_size, 7);
+[Q_matrix_snake(:,1), Q_matrix_snake(:,2)] = ind2sub([grid_size,grid_size],1:(grid_size*grid_size));
+Q_matrix_snake(:,1) = Q_matrix_snake(:,1) - ceil(grid_size/2);
+Q_matrix_snake(:,2) = Q_matrix_snake(:,2) - ceil(grid_size/2);
+Q_matrix_snake(:,3) = 1:(grid_size*grid_size);
 
 while 1
     fruit_eaten = 0;
@@ -70,19 +76,18 @@ while 1
         fruit_eaten = 1;
         Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_fruit - Q_matrix_fruit(ind_in_fruit_previous,3+action));
         world = zeros(grid_size,grid_size);
-        %snake_location = append_snake(snake_location,previous_snake_element_location);
+        snake_location = append_snake(snake_location,previous_snake_element_location);
         for j=1:size(snake_location,1)
             world(snake_location(j,1),snake_location(j,2)) = 1;
         end
         [fruit_r,fruit_c] = spawn_fruit(world);
         world(fruit_r,fruit_c) = 0.5;
-        [Global_Q_matrix,Q_matrix_fruit] = update_global_q_fruit(Q_matrix_fruit, Global_Q_matrix, grid_size, fruit_r, fruit_c);
+        Q_matrix_fruit = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
     end
     if ~fruit_eaten
         Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_moving + discount_factor * max(Q_matrix_fruit(ind_in_fruit_current,4:end)) - Q_matrix_fruit(ind_in_fruit_previous,3+action));
-        Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
     end
-
+    Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
     visualize_world(world,fruit_r,fruit_c,sleep,inf);
 
     if sum(sum(world==2)) == 1
@@ -93,6 +98,6 @@ while 1
         end
         [fruit_r, fruit_c] = spawn_fruit(world);
         world(fruit_r,fruit_c) = 0.5;
-        [Global_Q_matrix,Q_matrix_fruit] = update_global_q_fruit(Q_matrix_fruit, Global_Q_matrix, grid_size, fruit_r, fruit_c);
+        Q_matrix_fruit = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
     end
 end
