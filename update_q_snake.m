@@ -15,7 +15,6 @@ function [Q_matrix_snake] = update_global_q_snake(Q_matrix_snake, grid_size,snak
         ind = sub2ind([grid_size,grid_size],Q_matrix_snake(l,1),Q_matrix_snake(l,2));
         Q_matrix_snake(l,3) = ind;
     end
-
     [Q_matrix_snake(:,1), Q_matrix_snake(:,2)] = ind2sub([grid_size,grid_size],1:(grid_size*grid_size));
     Q_matrix_snake(:,1) = Q_matrix_snake(:,1) - ceil(grid_size/2);
     Q_matrix_snake(:,2) = Q_matrix_snake(:,2) - ceil(grid_size/2);
