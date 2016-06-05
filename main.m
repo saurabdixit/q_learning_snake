@@ -4,14 +4,14 @@ clear
 
 %% Inputs for the game
 grid_size = 5;
-initial_snake_length = 3;
+initial_snake_length = 5;
 sleep = 0.00;
 reward_for_fruit = 100;
 reward_for_moving = -3;
 reward_for_hitting = -200;
 learning_rate = 0.1;
-discount_factor = 0.9;
-explore_exploit_threshold =0.2;
+discount_factor = 0.7;
+explore_exploit_threshold =0.7;
 
 %% code starts here
 world = zeros(grid_size,grid_size);
@@ -31,7 +31,7 @@ Q_matrix_fruit(:,2) = Q_matrix_fruit(:,2) - ceil(grid_size/2);
 Q_matrix_fruit(:,3) = 1:(grid_size*grid_size);
 [Q_matrix_fruit] = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
 action=100;
-previous_action_taken = -100;
+previous_action_taken = 1;
 
 Q_matrix_snake = zeros(grid_size * grid_size, 7);
 [Q_matrix_snake(:,1), Q_matrix_snake(:,2)] = ind2sub([grid_size,grid_size],1:(grid_size*grid_size));
@@ -62,7 +62,7 @@ while 1
         else
             action = randsample([1,2,3,4],1);
         end
-            valid_action = check_valid_action(action,previous_action_taken);
+        valid_action = check_valid_action(action,previous_action_taken);
     end
     testing_phase = 0;
 
@@ -92,7 +92,7 @@ while 1
             Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_fruit - Q_matrix_fruit(ind_in_fruit_previous,3+action));
         end
         world = zeros(grid_size,grid_size);
-        snake_location = append_snake(snake_location,previous_snake_element_location);
+        %snake_location = append_snake(snake_location,previous_snake_element_location);
         for j=1:size(snake_location,1)
             world(snake_location(j,1),snake_location(j,2)) = 1;
         end
@@ -103,36 +103,36 @@ while 1
     if ~fruit_eaten && ~testing_phase
         Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (reward_for_moving + discount_factor * max(Q_matrix_fruit(ind_in_fruit_current,4:end)) - Q_matrix_fruit(ind_in_fruit_previous,3+action));
     end
-    Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
+    %Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
+    visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
     if sum(sum(world==2)) == 1
         iterator = iterator +1;
         fprintf('No of iteration %d: \n',iterator);
         world = zeros(grid_size,grid_size);
         [idx,~] = find(snake_location(1,1) == snake_location(2:end,1) & snake_location(1,2) == snake_location(2:end,2));
+        if idx == size(snake_location,1)-1
+            previous_location_of_collided_element = previous_snake_element_location;
+        else
+            previous_location_of_collided_element = snake_location(idx+2,:);
+        end
+
         if ~isempty(idx)
             iter_vec = 1:idx;
-            for k=iter_vec
-                snake_r = snake_location(idx+1,1);
-                snake_c = snake_location(idx+1,2);
-                Q_struct{idx+1} = update_q_snake(Q_struct{idx+1},grid_size,snake_r,snake_c);
-                ind_current = sub2ind(size(world),snake_location(k,1),snake_location(k,2));
-                ind_previous = sub2ind(size(world),snake_location(k+1,1),snake_location(k+1,2));
-                ind_in_snake_previous = find(Q_struct{idx+1}(:,3) == ind_previous);
-                ind_in_snake_current = find(Q_struct{idx+1}(:,3) == ind_current);
-                temp_action = snake_location(k+1,3);
-                if ~testing_phase
-                    if k==1
-                        Q_struct{idx+1}(ind_in_snake_previous,3+temp_action) = Q_struct{idx+1}(ind_in_snake_previous,3+temp_action) + learning_rate * (reward_for_hitting + discount_factor * min(Q_struct{idx+1}(ind_in_snake_current,4:end)) - Q_struct{idx+1}(ind_in_snake_previous,3+temp_action));
-                    else
-                        Q_struct{idx+1}(ind_in_snake_previous,3+temp_action) = Q_struct{idx+1}(ind_in_snake_previous,3+temp_action) + learning_rate * (discount_factor * min(Q_struct{idx+1}(ind_in_snake_current,4:end)) + Q_struct{idx+1}(ind_in_snake_previous,3+temp_action));
-                    end
-end
+            snake_location
+            snake_r = previous_location_of_collided_element(1,1);
+            snake_c = previous_location_of_collided_element(1,2);
+            Q_struct{idx+1} = update_q_snake(Q_struct{idx+1},grid_size,snake_r,snake_c);
+            ind_in_snake_previous = find(Q_struct{idx+1}(:,3) == ind_previous);
+            ind_in_snake_current = find(Q_struct{idx+1}(:,3) == ind_current);
+            if ~testing_phase
+                Q_struct{idx+1}(ind_in_snake_previous,3+action) = Q_struct{idx+1}(ind_in_snake_previous,3+action) + learning_rate * (reward_for_hitting + discount_factor * min(Q_struct{idx+1}(ind_in_snake_current,4:end)) - Q_struct{idx+1}(ind_in_snake_previous,3+action));
             end
-           % Q_struct{idx}
+            Q_struct{idx+1}
             
         end
         world = zeros(grid_size,grid_size);
         snake_location = [(grid_size-initial_snake_length)+[1:initial_snake_length]',ones(initial_snake_length,1),ones(initial_snake_length,1)];
+        previous_action_taken = 1;
 
         for j=1:size(snake_location,1)
             world(snake_location(j,1),snake_location(j,2)) = 1;
@@ -141,20 +141,28 @@ end
         world(fruit_r,fruit_c) = 0.5;
         Q_matrix_fruit = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
     end
+    Global_Q_matrix = zeros(grid_size * grid_size, 4);
     for m=1:size(snake_location,1)
-       snake_r = snake_location(m,1);
-       snake_c = snake_location(m,2);
-       Q_struct{m} = update_q_snake(Q_struct{m},grid_size,snake_r,snake_c);
-       %ind_in_snake_previous = find(Q_struct{m}(:,3) == ind_previous);
-       %ind_in_snake_current = find(Q_struct{m}(:,3) == ind_current);
-       %if ~testing_phase
-       %     Q_struct{m}(ind_in_snake_previous,3+action) = Q_struct{m}(ind_in_snake_previous,3+action) + learning_rate * (discount_factor * max(Q_struct{m}(ind_in_snake_current,4:end)) - Q_struct{m}(ind_in_snake_previous,3+action));
-       %end
-       %[m, Q_struct{m}(ind_in_snake_previous,3), Q_struct{m}(ind_in_snake_current,3)];
-       %Q_struct{m};
-       Global_Q_matrix(Q_struct{m}(:,3)',:) = Global_Q_matrix(Q_struct{m}(:,3)',:) + Q_struct{m}(:,4:end);
+        %if m < size(snake_location,1)
+        %    snake_r = snake_location(m+1,1);
+        %    snake_c = snake_location(m+1,2);
+        %else
+        %    snake_r = previous_snake_element_location(1,1);
+        %    previous_c = previous_snake_element_location(1,2);
+        %end
+        snake_r = snake_location(m,1);
+        snake_c = snake_location(m,2);
+        Q_struct{m} = update_q_snake(Q_struct{m},grid_size,snake_r,snake_c);
+        %ind_in_snake_previous = find(Q_struct{m}(:,3) == ind_previous);
+        %ind_in_snake_current = find(Q_struct{m}(:,3) == ind_current);
+        %if ~testing_phase
+        %     Q_struct{m}(ind_in_snake_previous,3+action) = Q_struct{m}(ind_in_snake_previous,3+action) + learning_rate * (discount_factor * min(Q_struct{m}(ind_in_snake_current,4:end)) - Q_struct{m}(ind_in_snake_previous,3+action));
+        %end
+        %%[m, Q_struct{m}(ind_in_snake_previous,3), Q_struct{m}(ind_in_snake_current,3)];
+        %snake_location
+        %Q_struct{m}
+        Global_Q_matrix(Q_struct{m}(:,3)',:) = Global_Q_matrix(Q_struct{m}(:,3)',:) + Q_struct{m}(:,4:end);
     end
-    if rem(iterator,1000) ==0
-        visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
-    end
+    [[1:(grid_size*grid_size)]',Global_Q_matrix]
+    pause;
 end

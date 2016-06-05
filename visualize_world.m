@@ -2,11 +2,14 @@ function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
     colored_image(:,:,1) = double(virtual_world < 0.5);
     colored_image(:,:,2) = double(virtual_world < 0.5);
     colored_image(:,:,3) = double(virtual_world < 0.5);
-    colored_image(r,c,2) = 0.5;
+    colored_image(r,c,3) = 1;
+    colored_image(r,c,2) = 1;
+    colored_image(r,c,1) = 1;
     colored_image(snake_location(1,1),snake_location(1,2),1) = 0.6;
     colored_image(snake_location(end,1),snake_location(end,2),1) = 1;
     colored_image(snake_location(end,1),snake_location(end,2),2) = 1;
     imshow(colored_image, 'InitialMagnification', 'fit');
+    grid_size = size(virtual_world,1);
     handler = findobj(gcf,'type','image');
     handler = findobj(gcf,'type','image');
     x_data = get(handler,'XData');
@@ -46,6 +49,10 @@ function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
         'Color', 'b', 'LineWidth', 1, 'Clipping', 'off');
     line('Parent', ax, 'XData', x_v, 'YData', y_v, ...
         'Color', 'b', 'LineWidth', 1, 'Clipping', 'off');
+    %for i=1:size(snake_location,1)-1
+    %    pt_1 = snake_location(i,1);
+    %    pt_2 = snake_location(i,2);
+    %line('Parent',ax,'XData', snake_location(:,2),'YData',snake_location(:,1), 'Color','r','LineWidth',2,'Clipping','off');
     title(strcat('Iteration Number:  ',int2str(trial)));
     pause(sleep)
 end
