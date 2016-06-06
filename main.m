@@ -3,17 +3,18 @@ clc
 clear
 
 %% Inputs for the game
-grid_size = 5;
-initial_snake_length = 5;
+grid_size = 10;
+initial_snake_length = grid_size;
 sleep = 0.00;
-reward_for_fruit = 500;
+reward_for_fruit = 1000;
 reward_for_moving =-10;
 reward_for_hitting = -1000;
 learning_rate_self = 0.9;
-discount_factor_self = 0.1;
-learning_rate = 0.2;
-discount_factor = 0.8;
-explore_exploit_threshold =0.2;
+discount_factor_self = 0.2;
+learning_rate = 0.5;
+discount_factor = 0.7;
+explore_exploit_threshold =0.5;
+fid = fopen('result.txt','a')
 
 %% code starts here
 world = zeros(grid_size,grid_size);
@@ -111,10 +112,10 @@ while 1
     %visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
     if sum(sum(world==2)) == 1
         fprintf('No of iteration %d: \n',iterator);
-        size(snake_location,1)
-        if testing_phase
-            pause;
-        end
+        fprintf(fid,'Iteration: %d \n',iterator);
+        fprintf(fid,'Snake Length: %d \n\n',size(snake_location,1));
+        %explore_exploit_threshold = explore_exploit_threshold - 0.01;
+        %size(snake_location,1)
         iterator = iterator +1;
         world = zeros(grid_size,grid_size);
         [idx,~] = find(snake_location(1,1) == snake_location(2:end,1) & snake_location(1,2) == snake_location(2:end,2));
@@ -159,13 +160,16 @@ while 1
     else
         extended_length = size(snake_location,1);
     end
-    for m=initial_snake_length:extended_length
-        for d = 1:m-1
+    for d = 1:3
+        for m=5:extended_length
+            if d>=m
+                continue;
+            end
             step = m-d;
-            snake_r = snake_location(d,1);
-            snake_c = snake_location(d,2);
+            snake_r = snake_location(step,1);
+            snake_c = snake_location(step,2);
             collision_matrix = update_q_snake(collision_matrix,grid_size,snake_r,snake_c);
-            idx_merge = find(collision_matrix(:,4) == step);
+            idx_merge = find(collision_matrix(:,4) == d);
             Global_Q_matrix(collision_matrix(idx_merge',3)',:) = Global_Q_matrix(collision_matrix(idx_merge',3)',:) + collision_matrix(idx_merge',5:end);
             %[[1:(grid_size * grid_size)]', Global_Q_matrix]
             %pause
@@ -173,7 +177,7 @@ while 1
     end
     %visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
     %pause
-
+    
     if testing_phase
         visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
         %[[1:(grid_size * grid_size)]', Global_Q_matrix]

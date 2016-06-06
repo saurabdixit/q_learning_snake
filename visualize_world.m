@@ -2,9 +2,9 @@ function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
     colored_image(:,:,1) = double(virtual_world < 0.5);
     colored_image(:,:,2) = double(virtual_world < 0.5);
     colored_image(:,:,3) = double(virtual_world < 0.5);
-    colored_image(r,c,3) = 1;
-    colored_image(r,c,2) = 1;
-    colored_image(r,c,1) = 1;
+    %colored_image(r,c,3) = 1;
+    colored_image(r,c,2) = 0.5;
+    %colored_image(r,c,1) = 1;
     colored_image(snake_location(1,1),snake_location(1,2),1) = 0.6;
     colored_image(snake_location(end,1),snake_location(end,2),1) = 1;
     colored_image(snake_location(end,1),snake_location(end,2),2) = 1;
