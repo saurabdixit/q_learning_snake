@@ -4,18 +4,22 @@ clear
 
 %% Inputs for the game
 grid_size = 10;
-initial_snake_length =5;
+initial_snake_length =3;
 sleep = 0.00;
 reward_for_fruit = 1000;
 reward_for_moving =-3;
 reward_for_hitting = -1000;
 learning_rate_self = 0.3;
-discount_factor_self = 0.1;
+discount_factor_self = 0.135;
 learning_rate = 0.9;
 discount_factor = 0.9;
-explore_exploit_threshold =0.5;
+explore_exploit_threshold =0.8;
+fid = fopen('result.txt','w');
+fclose(fid);
 fid = fopen('result.txt','a');
-
+saving_folder = uigetdir('.');
+saving_folder = strcat(saving_folder,'/');
+im_name = 1;
 %% code starts here
 world = zeros(grid_size,grid_size);
 previous_idx_merge = [];
@@ -53,7 +57,7 @@ while 1
     %action = input('Enter a action from 1-4: ');%randsample([1,2,3,4]);
     snake_length = size(snake_location,1);
 
-    testing_phase = rem(iterator,30) == 0;
+    testing_phase = rem(iterator,1000) == 0;
 	if testing_phase && count == 0
 		count =10
 	end
@@ -72,7 +76,7 @@ while 1
         action = randsample(vec_action,1);
     end
 	time = toc;
-	if ~fruit_eaten && time > 5
+	if ~fruit_eaten && time > 4
         action = randsample(vec_action,1);
 		tic;
 	end
@@ -124,7 +128,7 @@ while 1
     Q_matrix_fruit = update_q_fruit(Q_matrix_fruit, grid_size, fruit_r, fruit_c);
     Global_Q_matrix(Q_matrix_fruit(:,3)',:) = Q_matrix_fruit(:,4:end);
 	
-    if ~fruit_eaten
+    if ~fruit_eaten && ~testing_phase
     %    Global_Q_matrix(ind_previous,action) = Global_Q_matrix(ind_previous,action) + learning_rate * (reward_for_moving + discount_factor * max(Global_Q_matrix(ind_current,:)) - Global_Q_matrix(ind_previous,action));
 		Q_matrix_fruit(ind_in_fruit_previous,3+action) = Q_matrix_fruit(ind_in_fruit_previous,3+action) + learning_rate * (0 + discount_factor * max(Q_matrix_fruit(ind_in_fruit_current,4:end)) - Q_matrix_fruit(ind_in_fruit_previous,3+action));
     end
@@ -204,7 +208,7 @@ while 1
         extended_length = size(snake_location,1);
     end
     %extended_length = size(snake_location,1);
-    for d = 1:6
+    for d = 1:(abs(collision_matrix(1,1))+abs(collision_matrix(1,2)))
         for m=5:extended_length
             if d>=m
                 continue;
@@ -226,7 +230,11 @@ while 1
 		%Q_matrix_fruit
 		%collision_matrix
         %[[1:(grid_size * grid_size)]', Global_Q_matrix]
-		visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
+		fig_handler = visualize_world(world,snake_location,fruit_r,fruit_c,sleep,inf);
+		image_name = strcat(saving_folder,num2str(im_name));
+		im_name = im_name + 1;
+		saveas(fig_handler,strcat(image_name,'.jpg'))
+
     end
     
 end

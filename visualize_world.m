@@ -1,4 +1,4 @@
-function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
+function fig_handler = visualize_world(virtual_world,snake_location,r,c,sleep,trial)
     colored_image(:,:,1) = double(virtual_world < 0.5);
     colored_image(:,:,2) = double(virtual_world < 0.5);
     colored_image(:,:,3) = double(virtual_world < 0.5);
@@ -8,7 +8,7 @@ function visualize_world(virtual_world,snake_location,r,c,sleep,trial)
     colored_image(snake_location(1,1),snake_location(1,2),1) = 0.6;
     colored_image(snake_location(end,1),snake_location(end,2),1) = 1;
     colored_image(snake_location(end,1),snake_location(end,2),2) = 1;
-    imshow(colored_image, 'InitialMagnification', 'fit');
+    fig_handler = imshow(colored_image, 'InitialMagnification', 'fit');
     grid_size = size(virtual_world,1);
     handler = findobj(gcf,'type','image');
     handler = findobj(gcf,'type','image');
